@@ -43,7 +43,7 @@ CREATE TABLE [dbo].[DonHang](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[HangSanXuat]    Script Date: 8/6/2022 3:43:05 AM ******/
+/****** Object:  Table [dbo].[HangSanXuat]    Script Date: 1/10/2024 3:43:05 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -94,4 +94,124 @@ CREATE TABLE [dbo].[PhanQuyen](
 	[IDQuyen] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[SanPham]    Script Date: 1/10/2024 3:43:05 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[SanPham](
+	[Masp] [int] IDENTITY(1,1) NOT NULL,
+	[Tensp] [nvarchar](50) NULL,
+	[Giatien] [decimal](18, 0) NULL,
+	[Size] [int] NULL,
+	[Mota] [ntext] NULL,
+	[Anhbia] [nvarchar](50) NULL,
+	[Mahang] [int] NULL,
+	[Soluong] [int] NULL,
+	[Kho] [int] NULL,
+ CONSTRAINT [PK_SanPham] PRIMARY KEY CLUSTERED 
+(
+	[Masp] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[ThanhToan]    Script Date: 1/10/2024 3:43:05 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[ThanhToan](
+	[MaThanhToan] [int] IDENTITY(1,1) NOT NULL,
+	[LoaiThanhToan] [nvarchar](50) NULL,
+ CONSTRAINT [PK_ThanhToan] PRIMARY KEY CLUSTERED 
+(
+	[MaThanhToan] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[TinhTrang]    Script Date: 1/10/2024 3:43:05 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TinhTrang](
+	[MaTT] [int] IDENTITY(1,1) NOT NULL,
+	[LoaiTT] [nvarchar](50) NULL,
+ CONSTRAINT [PK_TinhTrang] PRIMARY KEY CLUSTERED 
+(
+	[MaTT] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[DonHang] ADD  CONSTRAINT [DF_DonHang_Tinhtrang]  DEFAULT ((1)) FOR [Tinhtrang]
+GO
+ALTER TABLE [dbo].[CTDonHang]  WITH CHECK ADD  CONSTRAINT [FK_CTDonHang_DonHang] FOREIGN KEY([Madon])
+REFERENCES [dbo].[DonHang] ([Madon])
+GO
+ALTER TABLE [dbo].[CTDonHang] CHECK CONSTRAINT [FK_CTDonHang_DonHang]
+GO
+ALTER TABLE [dbo].[CTDonHang]  WITH CHECK ADD  CONSTRAINT [FK_CTDonHang_SanPham] FOREIGN KEY([Masp])
+REFERENCES [dbo].[SanPham] ([Masp])
+GO
+ALTER TABLE [dbo].[CTDonHang] CHECK CONSTRAINT [FK_CTDonHang_SanPham]
+GO
+ALTER TABLE [dbo].[DonHang]  WITH CHECK ADD  CONSTRAINT [FK_DonHang_NguoiDung] FOREIGN KEY([MaNguoidung])
+REFERENCES [dbo].[NguoiDung] ([MaNguoiDung])
+GO
+ALTER TABLE [dbo].[DonHang] CHECK CONSTRAINT [FK_DonHang_NguoiDung]
+GO
+ALTER TABLE [dbo].[DonHang]  WITH CHECK ADD  CONSTRAINT [FK_DonHang_ThanhToan] FOREIGN KEY([Tinhtrangthanhtoan])
+REFERENCES [dbo].[ThanhToan] ([MaThanhToan])
+GO
+ALTER TABLE [dbo].[DonHang] CHECK CONSTRAINT [FK_DonHang_ThanhToan]
+GO
+ALTER TABLE [dbo].[DonHang]  WITH CHECK ADD  CONSTRAINT [FK_DonHang_TinhTrang] FOREIGN KEY([Tinhtrang])
+REFERENCES [dbo].[TinhTrang] ([MaTT])
+GO
+ALTER TABLE [dbo].[DonHang] CHECK CONSTRAINT [FK_DonHang_TinhTrang]
+GO
+ALTER TABLE [dbo].[NguoiDung]  WITH CHECK ADD  CONSTRAINT [FK_dbo.Nguoidung_dbo.PhanQuyen] FOREIGN KEY([IDQuyen])
+REFERENCES [dbo].[PhanQuyen] ([IDQuyen])
+GO
+ALTER TABLE [dbo].[NguoiDung] CHECK CONSTRAINT [FK_dbo.Nguoidung_dbo.PhanQuyen]
+GO
+ALTER TABLE [dbo].[SanPham]  WITH CHECK ADD  CONSTRAINT [FK_SanPham_HangSanXuat] FOREIGN KEY([Mahang])
+REFERENCES [dbo].[HangSanXuat] ([Mahang])
+GO
+ALTER TABLE [dbo].[SanPham] CHECK CONSTRAINT [FK_SanPham_HangSanXuat]
+GO
+/****** Object:  StoredProcedure [dbo].[Sp_GetReportProductByMonth]    Script Date: 1/10/2024 3:43:05 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[Sp_GetReportProductByMonth]
+	@Month INT
+AS
+BEGIN
+	select MONTH(ord.Ngaydat) as months, pro.Tensp, COUNT(pro.Masp) as total
+from DonHang ord  join CTDonHang od on ord.Madon = od.Madon join SanPham pro on pro.Masp = od.Masp
+
+GROUP BY MONTH(ord.Ngaydat), pro.Tensp
+ORDER BY MONTH(ord.Ngaydat)
+END
+GO
+/****** Object:  StoredProcedure [dbo].[Sp_GetReportProductByYear]    Script Date: 1/10/2024 3:43:05 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [dbo].[Sp_GetReportProductByYear]
+	@Year INT
+AS
+BEGIN
+	select YEAR(ord.Ngaydat) as years, pro.Tensp, COUNT(pro.Masp) as total
+from DonHang ord  join CTDonHang od on ord.Madon = od.Madon join SanPham pro on pro.Masp = od.Masp
+
+GROUP BY YEAR(ord.Ngaydat), pro.Tensp
+ORDER BY YEAR(ord.Ngaydat)
+END
 GO
